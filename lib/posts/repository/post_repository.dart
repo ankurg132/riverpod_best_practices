@@ -16,4 +16,13 @@ class PostRepository {
     }
     return null;
   }
+
+  Future<List<PostModel>?> fetchPaginatedPost(int pageNo) async {
+    final response = await ApiClient().get("${ApiUrls.postsUrl}&_page=$pageNo");
+    if (response.statusCode == 200) {
+      final List<dynamic> list = response.data;
+      return list.map((json) => PostModel.fromJson(json)).toList();
+    }
+    return null;
+  }
 }

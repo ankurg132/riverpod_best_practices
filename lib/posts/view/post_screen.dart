@@ -12,15 +12,37 @@ class PostScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: Text("Posts")),
       body: postNotifier.when(
-        data: (data) {
-          if (data?.isNotEmpty ?? false) {
-            return RefreshIndicator(
-              onRefresh: () =>
-                  ref.watch(postNotifierProvider.notifier).fetchPosts(),
-              child: ListView.builder(
-                itemCount: data?.length,
-                itemBuilder: (context, index) =>
-                    BlogDataCard(data: data?[index]),
+        data: (post) {
+          if (post.data?.isNotEmpty ?? false) {
+            return NotificationListener<ScrollNotification>(
+              onNotification: (notification) {
+                if (notification.metrics.pixels >=
+                    notification.metrics.maxScrollExtent * 0.9) {
+                  if (postNotifier.value?.nextPostLoading == false) {
+                    // Safe to read and call here!
+                    ref
+                        .read(postNotifierProvider.notifier)
+                        .fetchPaginatedPosts();
+                  }
+                }
+                return false;
+              },
+              child: RefreshIndicator(
+                onRefresh: () =>
+                    ref.watch(postNotifierProvider.notifier).fetchPosts(),
+                child: ListView.builder(
+                  itemCount: (post.data?.length ?? 0) + 1,
+                  itemBuilder: (context, index) {
+                    if (index == post.data?.length) {
+                      if (post.nextPostLoading) {
+                        return Center(child: CircularProgressIndicator());
+                      } else {
+                        return SizedBox.square();
+                      }
+                    }
+                    return BlogDataCard(data: post.data?[index]);
+                  },
+                ),
               ),
             );
           } else {

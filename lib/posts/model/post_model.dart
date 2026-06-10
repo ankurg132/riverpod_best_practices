@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 class PostModel {
   int? userId;
   int? id;
@@ -20,5 +21,19 @@ class PostModel {
     data['title'] = title;
     data['body'] = body;
     return data;
+  }
+
+  PostModel copyWith({
+    int? userId,
+    int? id,
+    String? title,
+    String? body,
+  }) {
+    return PostModel(
+      userId: userId ?? this.userId,
+      id: id ?? this.id,
+      title: title ?? this.title,
+      body: body ?? this.body,
+    );
   }
 }
